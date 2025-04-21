@@ -1,0 +1,109 @@
+/* Game Boy Theme */
+.retro-gameboy {
+  --retro-primary: #0f380f;
+  --retro-secondary: #306230;
+  --retro-background: #8bac0f;
+  --retro-text: #0f380f;
+  --retro-title-bar: #306230;
+  --retro-button: #8bac0f;
+  --retro-font: monospace;
+}
+
+.retro-gameboy body {
+  font-family: var(--retro-font);
+  image-rendering: pixelated;
+}
+
+.retro-gameboy .card {
+  border: 4px solid #0f380f;
+  border-radius: 0;
+  background: #9bbc0f;
+}
+
+.retro-gameboy .card-header {
+  background: var(--retro-title-bar);
+  color: #9bbc0f;
+  border-radius: 0;
+}
+
+.retro-gameboy .button {
+  background: var(--retro-button);
+  color: #0f380f;
+  border: 2px solid #0f380f;
+  border-radius: 0;
+  box-shadow: 2px 2px 0 #0f380f;
+  margin: 2px;
+  font-family: monospace;
+}
+
+.retro-gameboy .button:hover {
+  background: #aecb54;
+}
+
+.retro-gameboy .scrollbar {
+  background: #306230;
+}
+
+.retro-gameboy .startup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #9bbc0f;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  animation: startupFade 5s forwards;
+}
+
+.retro-gameboy .startup-logo {
+  font-family: monospace;
+  font-size: 40px;
+  color: #0f380f;
+  text-align: center;
+  line-height: 1.2;
+  opacity: 0;
+  animation: typeOn 2s steps(2) 0.5s forwards;
+}
+
+.retro-gameboy .startup-sound {
+  font-family: monospace;
+  margin-top: 20px;
+  color: #0f380f;
+  opacity: 0;
+  animation: blinkText 1s infinite 2.5s;
+}
+
+@keyframes typeOn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes blinkText {
+  0%,
+  49% {
+    opacity: 0;
+  }
+  50%,
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes startupFade {
+  0%,
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
