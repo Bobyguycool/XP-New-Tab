@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Gamepad2, Play, Settings, Info, HelpCircle, X } from "lucide-react"
+import { Gamepad2, Play, Info, HelpCircle, X } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
@@ -50,6 +50,10 @@ declare global {
     EJS_biosUrl?: string
     EJS_gameID?: number
     EJS_onGameStart?: () => void
+    EJS_startOnLoaded?: boolean
+    EJS_loadStateOnStart?: boolean
+    EJS_saveStateOnExit?: boolean
+    EJS_color?: string
   }
 }
 
@@ -110,13 +114,18 @@ export default function EmulatorGadget() {
     setError(null)
 
     try {
-      // Clean up any existing emulator
-      cleanupEmulator()
-
       // Get the system core
       const system = SUPPORTED_SYSTEMS.find((sys) => sys.id === selectedSystem)
       if (!system) {
         throw new Error("Invalid system selected")
+      }
+
+      // Validate file extension
+      const fileExtension = romFile.name.substring(romFile.name.lastIndexOf(".")).toLowerCase()
+      if (!system.extensions.includes(fileExtension)) {
+        throw new Error(
+          `This file type (${fileExtension}) is not supported for ${system.name}. Supported types: ${system.extensions.join(", ")}`,
+        )
       }
 
       // Save ROM to history
@@ -147,7 +156,7 @@ export default function EmulatorGadget() {
       setIsPlaying(true)
       setActiveTab("play")
     } catch (err) {
-      setError("Failed to load the emulator. Please try again.")
+      setError(err instanceof Error ? err.message : "Failed to load the emulator. Please try again.")
       console.error(err)
     } finally {
       setIsLoading(false)
@@ -157,6 +166,9 @@ export default function EmulatorGadget() {
   // Initialize EmulatorJS
   const initializeEmulator = (core: string, gameUrl: string) => {
     if (!gameContainerRef.current) return
+
+    // Clean up any existing emulator elements first
+    cleanupEmulator()
 
     // Create a unique ID for the game container
     const gameContainerId = `game-container-${Date.now()}`
@@ -168,6 +180,12 @@ export default function EmulatorGadget() {
     window.EJS_pathtodata = "https://cdn.emulatorjs.org/stable/data/"
     window.EJS_gameUrl = gameUrl
 
+    // Add these additional configurations
+    window.EJS_startOnLoaded = true
+    window.EJS_loadStateOnStart = false
+    window.EJS_saveStateOnExit = true
+    window.EJS_color = "#0066ff"
+
     // Add event handler for game start
     window.EJS_onGameStart = () => {
       console.log("Game started!")
@@ -177,6 +195,17 @@ export default function EmulatorGadget() {
     const script = document.createElement("script")
     script.src = "https://cdn.emulatorjs.org/stable/data/loader.js"
     script.async = true
+
+    // Make sure the script loads properly
+    script.onload = () => {
+      console.log("EmulatorJS loader script loaded successfully")
+    }
+
+    script.onerror = (e) => {
+      console.error("Error loading EmulatorJS script:", e)
+      setError("Failed to load the emulator. Please check your internet connection and try again.")
+    }
+
     document.body.appendChild(script)
     emulatorScriptRef.current = script
   }
@@ -219,6 +248,14 @@ export default function EmulatorGadget() {
         el.parentNode.removeChild(el)
       }
     })
+
+    // Clear global EmulatorJS variables
+    window.EJS_player = undefined
+    window.EJS_core = undefined
+    window.EJS_gameUrl = undefined
+    window.EJS_pathtodata = undefined
+    window.EJS_gameID = undefined
+    window.EJS_onGameStart = undefined
   }
 
   // Clean up when component unmounts
@@ -381,8 +418,20 @@ export default function EmulatorGadget() {
 
           <TabsContent value="play" className="space-y-4">
             <div ref={emulatorContainerRef} className="w-full aspect-video bg-black rounded-md overflow-hidden">
-              <div ref={gameContainerRef} className="w-full h-full"></div>
+              {isLoading ? (
+                <div className="w-full h-full flex items-center justify-center">
+                  <div className="text-white">Loading emulator...</div>
+                </div>
+              ) : (
+                <div ref={gameContainerRef} className="w-full h-full"></div>
+              )}
             </div>
+
+            {error && (
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                <p>{error}</p>
+              </div>
+            )}
 
             <div className="flex justify-between">
               <Button
@@ -395,9 +444,20 @@ export default function EmulatorGadget() {
               >
                 Back to Upload
               </Button>
-              <Button variant="outline">
-                <Settings className="h-4 w-4 mr-2" />
-                Emulator Settings
+              <Button
+                variant="outline"
+                onClick={() => {
+                  // Reload the emulator
+                  if (romObjectUrl) {
+                    const system = SUPPORTED_SYSTEMS.find((sys) => sys.id === selectedSystem)
+                    if (system) {
+                      cleanupEmulator()
+                      initializeEmulator(system.core, romObjectUrl)
+                    }
+                  }
+                }}
+              >
+                Reload Emulator
               </Button>
             </div>
           </TabsContent>
