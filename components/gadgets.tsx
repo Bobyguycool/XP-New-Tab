@@ -28,6 +28,8 @@ import StockTrackerGadget from "./stock-tracker-gadget"
 import AsciiArtGadget from "./ascii-art-gadget"
 // Add import for the new Emulator gadget
 import EmulatorGadget from "./emulator-gadget"
+// Add import for the new Retro Music Player
+import RetroMusicPlayer from "./retro-music-player"
 
 // Update the Gadgets component to include new gadgets and accept layout prop
 interface GadgetsProps {
@@ -59,6 +61,7 @@ export default function Gadgets({ activeGadgets, layout }: GadgetsProps) {
       {activeGadgets.includes("stocks") && <StockTrackerGadget />}
       {activeGadgets.includes("asciiart") && <AsciiArtGadget />}
       {activeGadgets.includes("emulator") && <EmulatorGadget />}
+      {activeGadgets.includes("retromusic") && <RetroMusicPlayer />}
     </>
   )
 }

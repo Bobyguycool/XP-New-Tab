@@ -485,6 +485,30 @@ export default function Settings({
                   />
                   <Label htmlFor="emulator">Retro Game Emulator</Label>
                 </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="retrogamecollection"
+                    checked={activeGadgets.includes("retrogamecollection")}
+                    onCheckedChange={() => handleGadgetToggle("retrogamecollection")}
+                  />
+                  <Label htmlFor="retrogamecollection">Retro Game Collection</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="retrogamequiz"
+                    checked={activeGadgets.includes("retrogamequiz")}
+                    onCheckedChange={() => handleGadgetToggle("retrogamequiz")}
+                  />
+                  <Label htmlFor="retrogamequiz">Retro Game Quiz</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="retromusic"
+                    checked={activeGadgets.includes("retromusic")}
+                    onCheckedChange={() => handleGadgetToggle("retromusic")}
+                  />
+                  <Label htmlFor="retromusic">Music Player</Label>
+                </div>
               </div>
             </div>
           </TabsContent>

@@ -27,6 +27,7 @@ import TimeDisplay from "./time-display"
 import QuickLinks from "./quick-links"
 import AsciiArtGadget from "./ascii-art-gadget"
 import EmulatorGadget from "./emulator-gadget"
+import RetroMusicPlayer from "./retro-music-player"
 
 interface LayoutItem {
   id: string
@@ -114,6 +115,8 @@ export default function CustomLayoutGadgets({ activeGadgets }: CustomLayoutGadge
         return <AsciiArtGadget />
       case "emulator":
         return <EmulatorGadget />
+      case "retromusic":
+        return <RetroMusicPlayer />
       default:
         return null
     }
